@@ -1,14 +1,16 @@
 import os
-import cv2
 import torch
 import numpy as np
 from PIL import Image
+from PIL import ImageFile
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+
 class Lighting:
     def __init__(self, alphastd, eigval, eigvec):
-        self.alphastd = self.alphastd
+        self.alphastd = alphastd
         self.eigval = eigval
         self.eigvec = eigvec
     
@@ -59,16 +61,14 @@ def get_imagenet_transform(transform_type):
     
     return {'train': train_tf, 'val': val_tf}
 
-def get_imagenet_loader(bs, dir_name, transform_type='basic'):
-    train_dir = os.path.join(dir_name, 'train')
-    val_dir = os.path.join(dir_name, 'val')
+def get_imagenet_loader(bs, num_workers, dir_name, transform_type='basic', mode='train'):
     tfs = get_imagenet_transform(transform_type)
+    if mode == 'train':
+        train_ds = datasets.ImageFolder(dir_name, tfs['train'])
+        train_dl = DataLoader(train_ds, batch_size=bs, shuffle=True, num_workers=num_workers)
+        return train_dl
     
-    train_ds = datasets.ImageFolder(train_dir, tfs['train'])
-    val_ds = datasets.ImageFolder(val_dir, tfs['val'])
-    class_names = train_ds.classes
-    
-    train_dl = DataLoader(train_ds, batch_size=bs, shuffle=True)
-    val_dl = DataLoader(val_ds, batch_size=bs, shuffle=False)
-    
-    return {'train': train_dl, 'val': val_dl}
+    elif mode == 'val':
+        val_ds = datasets.ImageFolder(dir_name, tfs['val'])
+        val_dl = DataLoader(val_ds, batch_size=bs, shuffle=False, num_workers=num_workers)
+        return val_dl

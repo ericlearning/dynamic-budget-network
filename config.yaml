@@ -1,0 +1,30 @@
+data: 
+    train_dir: '../ImageNet/train'
+    val_dir: '../ImageNet/val'
+
+
+training:
+    lr: 0.1
+    bs: 256
+    epoch_num: 10
+    
+    beta1: 0.9
+    beta2: -1
+    weight_decay: 1e-4
+    opt_type: 'sgd'
+    gradient_clip: 0
+    
+    n_workers: 10
+
+
+model:
+    ic: 3
+    oc: 1000
+    model_type: 'resnet18'
+
+
+logging:
+    log_dir: 'log'
+
+augmentation:
+    type: 'basic'
